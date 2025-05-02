@@ -27,6 +27,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <h1 className="w-full text-center bg-gray-800 py-2">
+          I am Website header
+        </h1>
         {children}
       </body>
     </html>
