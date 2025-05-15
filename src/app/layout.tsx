@@ -25,12 +25,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased `}
       >
-        <h1 className="w-full text-center bg-gray-800 py-2">
-          I am Website header
-        </h1>
-        {children}
+        <div className="">
+          <h1 className="w-full text-center bg-gray-800 py-2">
+            I am Website header
+          </h1>
+          <div className="mx-[min(5vw,50px)] mt-3">{children}</div>
+        </div>
       </body>
     </html>
   );
