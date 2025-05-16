@@ -1,5 +1,4 @@
 import Image from "next/image";
-import { PiStar } from "react-icons/pi";
 
 export default async function MovieDetail({
   params,
