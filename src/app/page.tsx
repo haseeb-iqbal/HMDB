@@ -33,27 +33,28 @@ export default async function Home() {
   console.log(movieRes);
   return (
     <div className="mt-4 text-center text-6xl">
-      <h1>HMDB</h1>
-      {movieRes.results.map((movie) => {
-        const movieLink = getMoviePath(movie.id);
-        return (
-          <div key={movie.id} className="flex flex-col items-center my-10">
-            <Link href={movieLink}>
-              <Image
-                key={movie.id}
-                src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-                alt={movie.original_title}
-                width={300}
-                height={450}
-                className="rounded-lg"
-              />
-            </Link>
-            <Link href={movieLink}>
-              <p className="text-2xl mt-3">{movie.original_title}</p>
-            </Link>
-          </div>
-        );
-      })}
+      <div className="flex items-center flex-wrap justify-center items-end gap-x-10 gap-y-10">
+        {movieRes.results.map((movie) => {
+          const movieLink = getMoviePath(movie.id);
+          return (
+            <div key={movie.id} className="flex flex-col items-center w-40">
+              <Link href={movieLink}>
+                <Image
+                  key={movie.id}
+                  src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+                  alt={movie.original_title}
+                  width={150}
+                  height={150}
+                  className="rounded-lg"
+                />
+              </Link>
+              <Link href={movieLink} className="px-1 py-2 h-18 text-xl">
+                {movie.original_title}
+              </Link>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
