@@ -65,10 +65,7 @@ export default async function MovieDetail({
           </div>
           <p>Rating: {movieRating}/10</p>
           <p className="text-2xl text-gray-300">{movieRes.tagline}</p>
-          <p>
-            {movieRes.overview} {movieRes.overview}
-            {movieRes.overview}
-          </p>
+          <p>{movieRes.overview}</p>
         </div>
       </div>
     </div>

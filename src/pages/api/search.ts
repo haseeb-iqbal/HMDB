@@ -27,13 +27,14 @@ export default async function handler(
     },
   };
 
-  try {
-    const response = await fetch(
-      `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(
+  const url = query
+    ? `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(
         query
-      )}`,
-      options
-    );
+      )}`
+    : "https://api.themoviedb.org/3/trending/movie/day";
+
+  try {
+    const response = await fetch(url, options);
 
     if (!response.ok) {
       return res
