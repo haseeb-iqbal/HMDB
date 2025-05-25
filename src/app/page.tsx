@@ -30,7 +30,6 @@ export default async function Home() {
   }
 
   const movieRes: MoviesResponse = await res.json();
-  console.log(movieRes);
   return (
     <div className="mt-4 text-center text-6xl">
       <div className="flex items-center flex-wrap justify-center items-end gap-x-10 gap-y-10">
