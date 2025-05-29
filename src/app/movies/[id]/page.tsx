@@ -97,7 +97,7 @@ export default async function MoviePage(props: { params: { id: string } }) {
             />
           </div>
           <div className="space-y-2">
-            <WatchlistToggle movie={movie} />
+            <WatchlistToggle movieId={movie.id} />
             <WatchedToggle movieId={movie.id} />
             <UserNotes movieId={movie.id} />
           </div>

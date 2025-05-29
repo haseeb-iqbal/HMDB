@@ -1,29 +1,43 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { FaRegHeart, FaHeart } from "react-icons/fa";
-import { isInWatchlist, toggleWatchlist } from "@/lib/watchlistUtils";
+import { useSession, useSupabaseClient } from "@supabase/auth-helpers-react";
 
-type Props = { movie: any };
-
-export default function WatchlistToggle({ movie }: Props) {
+export default function WatchlistToggle({ movieId }: { movieId: number }) {
+  const session = useSession();
+  const supabase = useSupabaseClient();
   const [added, setAdded] = useState(false);
 
   useEffect(() => {
-    setAdded(isInWatchlist(movie.id));
-  }, [movie.id]);
+    if (!session) return;
+    supabase
+      .from("watchlists")
+      .select("id")
+      .eq("user_id", session.user.id)
+      .eq("movie_id", movieId)
+      .then(({ data }) => setAdded(!!data?.length));
+  }, [session, movieId, supabase]);
 
-  const handleClick = () => {
-    toggleWatchlist(movie);
-    setAdded((prev) => !prev);
+  const toggle = async () => {
+    if (!session) return;
+    if (added) {
+      await supabase
+        .from("watchlists")
+        .delete()
+        .match({ user_id: session.user.id, movie_id: movieId });
+    } else {
+      await supabase
+        .from("watchlists")
+        .insert({ user_id: session.user.id, movie_id: movieId });
+    }
+    setAdded(!added);
   };
-
   return (
     <button
-      onClick={handleClick}
-      className="flex items-center gap-2 text-sm text-white bg-gray-700 hover:bg-gray-600 px-3 py-2 rounded w-full"
+      onClick={toggle}
+      disabled={!session}
+      className={`px-4 py-2 rounded ${added ? "bg-red-600" : "bg-gray-600"}`}
     >
-      {added ? <FaHeart className="text-red-500" /> : <FaRegHeart />}
       {added ? "Remove from Watchlist" : "Add to Watchlist"}
     </button>
   );
