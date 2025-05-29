@@ -1,7 +1,6 @@
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import Image from "next/image";
-import logo from "@images/HMDB_logo.webp";
 import Link from "next/link";
 import SearchBar from "@/components/SearchBar";
 
@@ -11,7 +10,7 @@ export default function Navbar() {
       <Toolbar className="bg-[#121212] shadow-md">
         <Link href="/" className="-my-7">
           <Image
-            src="/logo/HMDB_logo.webp"
+            src="/HMDB_logo.webp"
             alt="HMDB logo"
             width={130}
             height={130}

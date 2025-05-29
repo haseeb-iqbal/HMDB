@@ -1,5 +1,6 @@
-// ✅ This goes in: src/app/movies/[id]/page.tsx
+// src/app/movies/[id]/page.tsx
 import { notFound } from "next/navigation";
+import Image from "next/image";
 import TrailerEmbed from "@/components/TrailerEmbed";
 import WatchlistToggle from "@/components/WatchlistToggle";
 import WatchedToggle from "@/components/WatchedToggle";
@@ -10,19 +11,12 @@ import SimilarMoviesCarousel from "@/components/SimilarMoviesCarousel";
 
 const PLACEHOLDER = "/placeholder.jpg";
 
-// ✅ Fix for generateMetadata — no destructuring
 export async function generateMetadata(props: { params: { id: string } }) {
-  const param = await props.params;
-  const id = await param.id;
-
+  const id = props.params.id;
   const res = await fetch(`https://api.themoviedb.org/3/movie/${id}`, {
-    headers: {
-      Authorization: `Bearer ${process.env.TMDB_API_ACCESS_TOKEN}`,
-    },
+    headers: { Authorization: `Bearer ${process.env.TMDB_API_ACCESS_TOKEN}` },
   });
-
   if (!res.ok) return { title: "Movie Not Found" };
-
   const movie = await res.json();
 
   return {
@@ -42,23 +36,16 @@ export async function generateMetadata(props: { params: { id: string } }) {
   };
 }
 
-// ✅ Fix for MoviePage — no destructuring
 export default async function MoviePage(props: { params: { id: string } }) {
-  const param = await props.params;
-  const id = await param.id;
-
+  const id = props.params.id;
   const res = await fetch(
     `https://api.themoviedb.org/3/movie/${id}?append_to_response=videos,credits,recommendations`,
     {
-      headers: {
-        Authorization: `Bearer ${process.env.TMDB_API_ACCESS_TOKEN}`,
-      },
+      headers: { Authorization: `Bearer ${process.env.TMDB_API_ACCESS_TOKEN}` },
       cache: "no-store",
     }
   );
-
   if (!res.ok) return notFound();
-
   const movie = await res.json();
 
   const {
@@ -79,32 +66,44 @@ export default async function MoviePage(props: { params: { id: string } }) {
 
   return (
     <div className="text-white max-w-6xl mx-auto px-4 sm:px-8 py-8">
+      {/* Backdrop */}
       {backdrop_path && (
-        <img
-          src={`https://image.tmdb.org/t/p/w1280${backdrop_path}`}
-          alt={title}
-          className="w-full rounded-xl object-cover max-h-[450px] mb-6"
-        />
+        <div className="relative w-full h-[450px] mb-6 rounded-xl overflow-hidden">
+          <Image
+            src={`https://image.tmdb.org/t/p/w1280${backdrop_path}`}
+            alt={title}
+            fill
+            className="object-cover"
+            priority
+          />
+        </div>
       )}
 
       <div className="flex flex-col lg:flex-row gap-8">
-        <div className="w-full lg:w-1/3">
-          <img
-            src={
-              poster_path
-                ? `https://image.tmdb.org/t/p/w500${poster_path}`
-                : PLACEHOLDER
-            }
-            alt={title}
-            className="rounded-lg shadow-lg w-full object-cover"
-          />
-          <div className="mt-4 space-y-2">
+        {/* Poster & Toggles */}
+        <div className="w-full lg:w-1/3 space-y-4">
+          <div className="relative w-full">
+            <Image
+              src={
+                poster_path
+                  ? `https://image.tmdb.org/t/p/w500${poster_path}`
+                  : PLACEHOLDER
+              }
+              alt={title}
+              width={500}
+              height={750}
+              className="rounded-lg shadow-lg w-full object-cover"
+              priority
+            />
+          </div>
+          <div className="space-y-2">
             <WatchlistToggle movie={movie} />
             <WatchedToggle movieId={movie.id} />
             <UserNotes movieId={movie.id} />
           </div>
         </div>
 
+        {/* Details */}
         <div className="flex-1">
           <h1 className="text-3xl font-bold mb-2">{title}</h1>
           {tagline && <p className="italic text-gray-400 mb-2">"{tagline}"</p>}
@@ -150,33 +149,34 @@ export default async function MoviePage(props: { params: { id: string } }) {
         </div>
       </div>
 
+      {/* Trailer */}
       {videos?.results?.length > 0 && (
         <div className="mt-10">
-          {movie?.videos?.results?.length > 0 && (
-            <TrailerEmbed
-              videoKey={
-                movie.videos.results.find(
-                  (v) => v.site === "YouTube" && v.type === "Trailer"
-                )?.key
-              }
-            />
-          )}{" "}
+          <TrailerEmbed
+            videoKey={
+              videos.results.find(
+                (v: any) => v.site === "YouTube" && v.type === "Trailer"
+              )?.key
+            }
+          />
         </div>
       )}
+
+      {/* Cast */}
       {credits?.cast?.length > 0 && (
         <div className="mt-10">
-          {Array.isArray(credits?.cast) && credits.cast.length > 0 && (
-            <CastGrid cast={credits.cast} />
-          )}{" "}
+          <CastGrid cast={credits.cast} />
         </div>
       )}
+
+      {/* Crew */}
       {credits?.crew?.length > 0 && (
         <div className="mt-10">
-          {Array.isArray(credits?.crew) && credits.crew.length > 0 && (
-            <CrewGrid crew={credits.crew} />
-          )}{" "}
+          <CrewGrid crew={credits.crew} />
         </div>
       )}
+
+      {/* Similar */}
       {recommendations?.results?.length > 0 && (
         <div className="mt-10">
           <SimilarMoviesCarousel movies={recommendations.results} />
