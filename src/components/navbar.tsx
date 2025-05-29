@@ -10,7 +10,13 @@ export default function Navbar() {
     <AppBar position="static">
       <Toolbar className="bg-[#121212] shadow-md">
         <Link href="/" className="-my-7">
-          <Image src={logo} width={130} height={130} alt="hmdb logo" />
+          <Image
+            src="/logo/HMDB_logo.webp"
+            alt="HMDB logo"
+            width={130}
+            height={130}
+            priority // ✅ This removes the LCP warning
+          />
         </Link>
         <SearchBar />
       </Toolbar>

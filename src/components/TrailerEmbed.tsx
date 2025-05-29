@@ -1,26 +1,26 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Image from "next/image";
 
 type Props = {
-  videos: Array<{ key: string; site: string; type: string }>;
+  videoKey?: string;
 };
 
-export default function TrailerEmbed({ videos }: Props) {
-  const trailer = videos.find(
-    (v) => v.site === "YouTube" && v.type === "Trailer"
-  );
-
+export default function TrailerEmbed({ videoKey }: Props) {
   const [play, setPlay] = useState(false);
+  const embedUrl = useMemo(() => {
+    if (!videoKey) return null;
+    return `https://www.youtube-nocookie.com/embed/${videoKey}?autoplay=1&mute=1`;
+  }, [videoKey]);
 
-  if (!trailer) return null;
+  const thumbnailUrl = videoKey
+    ? `https://img.youtube.com/vi/${videoKey}/hqdefault.jpg`
+    : "";
 
-  const thumbnailUrl = `https://img.youtube.com/vi/${trailer.key}/hqdefault.jpg`;
-  const embedUrl = `https://www.youtube.com/embed/${trailer.key}?autoplay=1&mute=1`;
-
+  if (!videoKey) return null;
   return (
-    <div className="aspect-video w-full relative rounded overflow-hidden">
+    <div className="relative w-full" style={{ aspectRatio: "16 / 9" }}>
       {!play ? (
         <button
           onClick={() => setPlay(true)}
@@ -31,7 +31,7 @@ export default function TrailerEmbed({ videos }: Props) {
             alt="Trailer thumbnail"
             fill
             className="object-cover"
-            sizes="(max-width: 768px) 100vw, 800px"
+            sizes="100vw"
             priority
           />
           <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
@@ -47,11 +47,12 @@ export default function TrailerEmbed({ videos }: Props) {
         </button>
       ) : (
         <iframe
-          src={embedUrl}
-          title="Trailer"
+          key={videoKey}
+          src={embedUrl!}
+          title="YouTube Trailer"
           allow="autoplay; encrypted-media"
           allowFullScreen
-          className="w-full h-full"
+          className="w-full h-full absolute top-0 left-0"
         />
       )}
     </div>

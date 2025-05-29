@@ -152,7 +152,15 @@ export default async function MoviePage(props: { params: { id: string } }) {
 
       {videos?.results?.length > 0 && (
         <div className="mt-10">
-          <TrailerEmbed videos={videos.results} />
+          {movie?.videos?.results?.length > 0 && (
+            <TrailerEmbed
+              videoKey={
+                movie.videos.results.find(
+                  (v) => v.site === "YouTube" && v.type === "Trailer"
+                )?.key
+              }
+            />
+          )}{" "}
         </div>
       )}
       {credits?.cast?.length > 0 && (

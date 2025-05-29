@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { AppRouterCacheProvider } from "@mui/material-nextjs/v15-appRouter";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { ThemeProvider } from "next-themes";
 import Navbar from "@/components/Navbar";
 
 const geistSans = Geist({
@@ -25,16 +26,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en suppressHydrationWarning">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased `}
       >
-        <AppRouterCacheProvider options={{ enableCssLayer: true }}>
-          <Navbar />
-          <div>
-            <div className="mx-[min(5vw,50px)] mt-3">{children}</div>
-          </div>
-        </AppRouterCacheProvider>
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
+          <AppRouterCacheProvider options={{ enableCssLayer: true }}>
+            <Navbar />
+            <div>
+              <div className="mx-[min(5vw,50px)] mt-3">{children}</div>
+            </div>
+          </AppRouterCacheProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
