@@ -8,6 +8,8 @@ import UserNotes from "@/components/UserNotes";
 import CastGrid from "@/components/CastGrid";
 import CrewGrid from "@/components/CrewGrid";
 import SimilarMoviesCarousel from "@/components/SimilarMoviesCarousel";
+import ReviewForm from "@/components/ReviewForm";
+import ReviewList from "@/components/ReviewList";
 
 const PLACEHOLDER = "/placeholder.jpg";
 
@@ -161,7 +163,8 @@ export default async function MoviePage(props: { params: { id: string } }) {
           />
         </div>
       )}
-
+      <ReviewForm movieId={movie.id} />
+      <ReviewList movieId={movie.id} />
       {/* Cast */}
       {credits?.cast?.length > 0 && (
         <div className="mt-10">
