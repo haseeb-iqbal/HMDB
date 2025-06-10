@@ -16,6 +16,7 @@
     "@mui/material-nextjs": "^7.1.0",
     "@supabase/auth-helpers-nextjs": "^0.10.0",
     "@supabase/auth-helpers-react": "^0.5.0",
+    "@supabase/ssr": "^0.4.1",
     "@supabase/supabase-js": "^2.49.8",
     "keen-slider": "^6.8.6",
     "next": "15.3.1",
