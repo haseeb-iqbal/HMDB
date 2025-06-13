@@ -2,12 +2,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSupabaseClient, useSession } from "@supabase/auth-helpers-react";
 import { useRouter } from "next/navigation";
+import { createClient } from "@/utils/supabase/client";
 
 export default function AuthForm() {
-  const supabase = useSupabaseClient();
-  const session = useSession();
+  const supabase = createClient();
   const router = useRouter();
 
   // 1) New name field
@@ -30,10 +29,12 @@ export default function AuthForm() {
   >(null);
 
   useEffect(() => {
-    if (session) {
-      router.push("/");
-    }
-  }, [session, router]);
+    supabase.auth.getUser().then((session) => {
+      if (session.data.user) {
+        router.push("/");
+      }
+    });
+  }, []);
 
   // Client-side password validation function
   const validatePasswordRules = (pw: string): string | null => {

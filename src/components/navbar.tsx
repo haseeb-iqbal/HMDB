@@ -6,13 +6,24 @@ import Toolbar from "@mui/material/Toolbar";
 import Image from "next/image";
 import Link from "next/link";
 import SearchBar from "@/components/SearchBar";
-import { useSession, useSupabaseClient } from "@supabase/auth-helpers-react";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { createClient } from "@/utils/supabase/client";
+import type { User } from "@supabase/supabase-js";
 
 export default function Navbar() {
-  const session = useSession();
-  const supabase = useSupabaseClient();
+  const [supabaseUser, setSupabaseUser] = useState<User>();
+
+  const supabase = createClient();
   const router = useRouter();
+
+  useEffect(() => {
+    supabase.auth.getUser().then((session) => {
+      if (session.data.user) {
+        setSupabaseUser(session.data.user);
+      }
+    });
+  }, []);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -33,9 +44,9 @@ export default function Navbar() {
         </Link>
         <SearchBar />
         <div className="ml-auto flex items-center space-x-4">
-          {session ? (
+          {supabaseUser ? (
             <>
-              <span className="text-white">Hi, {session.user.email}</span>
+              <span className="text-white">Hi, {supabaseUser.email}</span>
               <button
                 onClick={handleSignOut}
                 className="text-sm text-red-500 hover:underline"

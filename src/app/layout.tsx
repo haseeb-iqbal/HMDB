@@ -4,7 +4,6 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "next-themes";
 import Navbar from "@/components/Navbar";
-import SupabaseProvider from "@/components/SupabaseProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,16 +30,14 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased `}
       >
-        <SupabaseProvider>
-          <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
-            <AppRouterCacheProvider options={{ enableCssLayer: true }}>
-              <Navbar />
-              <div>
-                <div className="mx-[min(5vw,50px)] mt-3">{children}</div>
-              </div>
-            </AppRouterCacheProvider>
-          </ThemeProvider>
-        </SupabaseProvider>
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
+          <AppRouterCacheProvider options={{ enableCssLayer: true }}>
+            <Navbar />
+            <div>
+              <div className="mx-[min(5vw,50px)] mt-3">{children}</div>
+            </div>
+          </AppRouterCacheProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

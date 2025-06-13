@@ -3,10 +3,10 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useSupabaseClient } from "@supabase/auth-helpers-react";
+import { createClient } from "@/utils/supabase/client";
 
 export default function ResetPasswordPage() {
-  const supabase = useSupabaseClient();
+  const supabase = createClient();
   const router = useRouter();
   const searchParams = useSearchParams();
 

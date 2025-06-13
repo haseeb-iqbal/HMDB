@@ -5,6 +5,8 @@ import { useState, useEffect } from "react";
 import { useSupabaseClient, useSession } from "@supabase/auth-helpers-react";
 import { useRouter } from "next/navigation";
 import { validateEmail } from "@/lib/validation";
+import OneTapComponent from "./OneTapComponent";
+import GoogleAuthButton from "./GoogleSignInButton";
 
 export default function SignInForm() {
   const supabase = useSupabaseClient();
@@ -264,6 +266,8 @@ export default function SignInForm() {
           </p>
         </>
       )}
+      <OneTapComponent />
+      <GoogleAuthButton />
     </div>
   );
 }
