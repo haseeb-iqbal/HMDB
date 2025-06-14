@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSupabaseClient, useSession } from "@supabase/auth-helpers-react";
 import { useRouter } from "next/navigation";
 import {
   validateName,
@@ -9,10 +8,11 @@ import {
   validatePasswordRules,
   validateConfirmPassword,
 } from "@/lib/validation";
+import type { User } from "@supabase/supabase-js";
+import { createClient } from "@/utils/supabase/client";
 
 export default function SignUpForm() {
-  const supabase = useSupabaseClient();
-  const session = useSession();
+  const supabase = createClient();
   const router = useRouter();
 
   // 1) Name field
@@ -33,13 +33,22 @@ export default function SignUpForm() {
   const [confirmPasswordError, setConfirmPasswordError] = useState<
     string | null
   >(null);
+  const [supabaseUser, setSupabaseUser] = useState<User>();
+
+  useEffect(() => {
+    supabase.auth.getUser().then((session) => {
+      if (session.data.user) {
+        setSupabaseUser(session.data.user);
+      }
+    });
+  }, []);
 
   // Redirect if already signed in
   useEffect(() => {
-    if (session) {
+    if (supabaseUser) {
       router.push("/");
     }
-  }, [session, router]);
+  }, [supabaseUser, router]);
 
   const handleSignUp = async () => {
     // Clear previous errors/messages

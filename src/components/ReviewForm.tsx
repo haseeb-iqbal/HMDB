@@ -1,24 +1,34 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSession, useSupabaseClient } from "@supabase/auth-helpers-react";
+import { createClient } from "@/utils/supabase/client";
+import type { User } from "@supabase/supabase-js";
 
 export default function ReviewForm({ movieId }: { movieId: number }) {
-  const session = useSession();
-  const supabase = useSupabaseClient();
+  const supabase = createClient();
+
+  useEffect(() => {
+    supabase.auth.getUser().then((session) => {
+      if (session.data.user) {
+        setSupabaseUser(session.data.user);
+      }
+    });
+  }, []);
+
   const [rating, setRating] = useState<number>(5);
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [hasSpoilers, setHasSpoilers] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [supabaseUser, setSupabaseUser] = useState<User>();
 
   // If the user already reviewed, load it
   useEffect(() => {
-    if (!session) return;
+    if (!supabaseUser) return;
     supabase
       .from("reviews")
       .select("*")
-      .eq("user_id", session.user.id)
+      .eq("user_id", supabaseUser.id)
       .eq("movie_id", movieId)
       .single()
       .then(({ data, error }) => {
@@ -29,14 +39,14 @@ export default function ReviewForm({ movieId }: { movieId: number }) {
           setHasSpoilers(data.has_spoilers);
         }
       });
-  }, [session, movieId, supabase]);
+  }, [supabaseUser, movieId, supabase]);
 
   const handleSubmit = async () => {
-    if (!session) return;
+    if (!supabaseUser) return;
     setLoading(true);
 
     const payload = {
-      user_id: session.user.id,
+      user_id: supabaseUser.id,
       movie_id: movieId,
       rating,
       title: title.trim(),
@@ -57,7 +67,7 @@ export default function ReviewForm({ movieId }: { movieId: number }) {
     setLoading(false);
   };
 
-  if (!session) {
+  if (!supabaseUser) {
     return (
       <p className="text-gray-400">
         <a href="/auth" className="text-blue-400 hover:underline">

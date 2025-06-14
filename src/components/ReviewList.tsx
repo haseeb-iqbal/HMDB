@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSupabaseClient } from "@supabase/auth-helpers-react";
+import { createClient } from "@/utils/supabase/client";
 
 type Review = {
   id: number;
@@ -14,7 +14,7 @@ type Review = {
 };
 
 export default function ReviewList({ movieId }: { movieId: number }) {
-  const supabase = useSupabaseClient();
+  const supabase = createClient();
   const [reviews, setReviews] = useState<Review[]>([]);
   const [avgRating, setAvgRating] = useState<number>(0);
 

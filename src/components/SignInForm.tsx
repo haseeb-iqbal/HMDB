@@ -2,15 +2,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSupabaseClient, useSession } from "@supabase/auth-helpers-react";
 import { useRouter } from "next/navigation";
 import { validateEmail } from "@/lib/validation";
 import OneTapComponent from "./OneTapComponent";
 import GoogleAuthButton from "./GoogleSignInButton";
+import { createClient } from "@/utils/supabase/client";
+import type { User } from "@supabase/supabase-js";
 
 export default function SignInForm() {
-  const supabase = useSupabaseClient();
-  const session = useSession();
+  const supabase = createClient();
   const router = useRouter();
 
   // View mode: "signin" or "reset"
@@ -30,12 +30,21 @@ export default function SignInForm() {
   // Reset‐password–specific
   const [resetMessage, setResetMessage] = useState<string | null>(null);
   const [resetError, setResetError] = useState<string | null>(null);
+  const [supabaseUser, setSupabaseUser] = useState<User>();
 
   useEffect(() => {
-    if (session) {
+    supabase.auth.getUser().then((session) => {
+      if (session.data.user) {
+        setSupabaseUser(session.data.user);
+      }
+    });
+  }, []);
+
+  useEffect(() => {
+    if (supabaseUser) {
       router.push("/");
     }
-  }, [session, router]);
+  }, [supabaseUser, router]);
 
   const handleSignIn = async () => {
     // Clear previous

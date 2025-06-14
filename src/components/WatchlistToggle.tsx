@@ -1,41 +1,50 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSession, useSupabaseClient } from "@supabase/auth-helpers-react";
+import { createClient } from "@/utils/supabase/client";
+import type { User } from "@supabase/supabase-js";
 
 export default function WatchlistToggle({ movieId }: { movieId: number }) {
-  const session = useSession();
-  const supabase = useSupabaseClient();
+  const [supabaseUser, setSupabaseUser] = useState<User>();
+  const supabase = createClient();
   const [added, setAdded] = useState(false);
 
   useEffect(() => {
-    if (!session) return;
+    supabase.auth.getUser().then((session) => {
+      if (session.data.user) {
+        setSupabaseUser(session.data.user);
+      }
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!supabaseUser) return;
     supabase
       .from("watchlists")
       .select("id")
-      .eq("user_id", session.user.id)
+      .eq("user_id", supabaseUser.id)
       .eq("movie_id", movieId)
       .then(({ data }) => setAdded(!!data?.length));
-  }, [session, movieId, supabase]);
+  }, [supabaseUser, movieId, supabase]);
 
   const toggle = async () => {
-    if (!session) return;
+    if (!supabaseUser) return;
     if (added) {
       await supabase
         .from("watchlists")
         .delete()
-        .match({ user_id: session.user.id, movie_id: movieId });
+        .match({ user_id: supabaseUser.id, movie_id: movieId });
     } else {
       await supabase
         .from("watchlists")
-        .insert({ user_id: session.user.id, movie_id: movieId });
+        .insert({ user_id: supabaseUser.id, movie_id: movieId });
     }
     setAdded(!added);
   };
   return (
     <button
       onClick={toggle}
-      disabled={!session}
+      disabled={!supabaseUser}
       className={`px-4 py-2 rounded ${added ? "bg-red-600" : "bg-gray-600"}`}
     >
       {added ? "Remove from Watchlist" : "Add to Watchlist"}
