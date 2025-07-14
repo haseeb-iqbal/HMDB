@@ -275,8 +275,8 @@ export default function SignInForm() {
           </p>
         </>
       )}
-      <OneTapComponent />
-      <GoogleAuthButton />
+      {/* <OneTapComponent /> */}
+      {/* <GoogleAuthButton /> */}
     </div>
   );
 }

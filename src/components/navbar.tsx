@@ -23,6 +23,20 @@ export default function Navbar() {
         setSupabaseUser(session.data.user);
       }
     });
+
+    const { data } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log(event, session);
+
+      if (event === "SIGNED_IN") {
+        setSupabaseUser(session?.user);
+        // handle sign in even
+      } else if (event === "SIGNED_OUT") {
+        setSupabaseUser(undefined);
+      }
+    });
+    return () => {
+      data.subscription.unsubscribe();
+    };
   }, []);
 
   const handleSignOut = async () => {
