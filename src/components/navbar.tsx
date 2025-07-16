@@ -60,7 +60,9 @@ export default function Navbar() {
         <div className="ml-auto flex items-center space-x-4">
           {supabaseUser ? (
             <>
-              <span className="text-white">Hi, {supabaseUser.email}</span>
+              <span className="text-white">
+                Hi, {supabaseUser.user_metadata.display_name}
+              </span>
               <button
                 onClick={handleSignOut}
                 className="text-sm text-red-500 hover:underline"

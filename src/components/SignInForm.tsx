@@ -4,8 +4,8 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { validateEmail } from "@/lib/validation";
-import OneTapComponent from "./OneTapComponent";
-import GoogleAuthButton from "./GoogleSignInButton";
+// import OneTapComponent from "./OneTapComponent";
+// import GoogleAuthButton from "./GoogleSignInButton";
 import { createClient } from "@/utils/supabase/client";
 import type { User } from "@supabase/supabase-js";
 
