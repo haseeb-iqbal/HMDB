@@ -31,6 +31,7 @@ export default function Navbar() {
 
       if (event === "SIGNED_IN") {
         setSupabaseUser(session?.user);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const metadata = (session?.user.user_metadata || {}) as any;
         setAvatarUrl(metadata.avatar_url || "");
 
