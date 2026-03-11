@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { createClient } from "@/utils/supabase/client";
 import type { User } from "@supabase/supabase-js";
 import {
@@ -8,16 +8,17 @@ import {
   Avatar,
   Typography,
   TextField,
-  Button,
+  IconButton,
   CircularProgress,
   Snackbar,
   Alert,
 } from "@mui/material";
+import { FaEdit, FaCheck, FaCamera } from "react-icons/fa";
 
 export default function UserAccountPage() {
   const supabase = createClient();
 
-  const [supabaseUser, setSupabaseUser] = useState<User>();
+  const [supabaseUser, setSupabaseUser] = useState<User | null>(null);
   const [displayName, setDisplayName] = useState("");
   const [bio, setBio] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
@@ -27,54 +28,51 @@ export default function UserAccountPage() {
     text: string;
   } | null>(null);
 
-  //   const [mysession, setMySession] =
-  //     useState<import("@supabase/supabase-js").UserResponse>();
-
-  //   useEffect(() => {
-  //     supabase.auth.getUser().then((session) => {
-  //       // do something here with the session like  ex: setState(session)
-  //       setMySession(session);
-  //     });
-  //   }, []);
+  const [editingName, setEditingName] = useState(false);
+  const [editingBio, setEditingBio] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    supabase.auth.getUser().then((session) => {
-      if (session.data.user) {
-        setSupabaseUser(session.data.user);
-      }
+    supabase.auth.getUser().then(({ data }) => {
+      if (data.user) setSupabaseUser(data.user);
     });
   }, []);
 
   useEffect(() => {
     if (supabaseUser) {
-      const metadata = (supabaseUser.user_metadata || {}) as any;
-      setDisplayName(metadata.display_name || "");
-      setBio(metadata.bio || "");
-      setAvatarUrl(metadata.avatar_url || "");
+      const meta = (supabaseUser.user_metadata || {}) as any;
+      setDisplayName(meta.display_name || "");
+      setBio(meta.bio || "");
+      setAvatarUrl(meta.avatar_url || "");
     }
   }, [supabaseUser]);
 
-  const handleSave = async () => {
+  const handleSaveField = async (field: "name" | "bio") => {
+    if (!supabaseUser) return;
     setLoading(true);
-    const updates: any = { display_name: displayName, bio };
-    if (avatarUrl) {
-      updates.avatar_url = avatarUrl;
-    }
+    const updates: any = {};
+    if (field === "name") updates.display_name = displayName;
+    if (field === "bio") updates.bio = bio;
     const { error } = await supabase.auth.updateUser({ data: updates });
     setLoading(false);
     if (error) {
       setMessage({ type: "error", text: error.message });
     } else {
-      setMessage({ type: "success", text: "Profile updated successfully." });
+      setMessage({ type: "success", text: "Saved." });
+      if (field === "name") setEditingName(false);
+      if (field === "bio") setEditingBio(false);
     }
   };
 
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click();
+  };
+
   const onFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files || e.target.files.length === 0) return;
+    if (!e.target.files || !supabaseUser) return;
     const file = e.target.files[0];
     setLoading(true);
-    // upload to Supabase storage bucket "avatars" with file name = user.id
-    const filePath = `${supabaseUser?.id}/${file.name}`;
+    const filePath = `${supabaseUser.id}/${file.name}`;
     const { error: uploadError } = await supabase.storage
       .from("avatars")
       .upload(filePath, file, { cacheControl: "3600", upsert: true });
@@ -83,12 +81,12 @@ export default function UserAccountPage() {
       setLoading(false);
       return;
     }
-    // get public URL
-    const {
-      data: { publicUrl },
-    } = supabase.storage.from("avatars").getPublicUrl(filePath);
-    setAvatarUrl(publicUrl);
+    const { data } = supabase.storage.from("avatars").getPublicUrl(filePath);
+    setAvatarUrl(data.publicUrl);
+    // update metadata
+    await supabase.auth.updateUser({ data: { avatar_url: data.publicUrl } });
     setLoading(false);
+    setMessage({ type: "success", text: "Avatar updated." });
   };
 
   if (!supabaseUser) {
@@ -107,56 +105,96 @@ export default function UserAccountPage() {
         boxShadow: 3,
         display: "flex",
         flexDirection: "column",
-        gap: 2,
+        gap: 3,
+        color: "text.primary",
       }}
     >
       <Typography variant="h4" align="center">
         My Account
       </Typography>
 
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          flexDirection: "column",
-          gap: 1,
-        }}
-      >
+      <Box sx={{ position: "relative", width: 100, height: 100, mx: "auto" }}>
         {loading ? (
-          <CircularProgress />
+          <CircularProgress sx={{ position: "absolute", top: 0, left: 0 }} />
         ) : (
-          <Avatar src={avatarUrl || undefined} sx={{ width: 80, height: 80 }} />
+          <Avatar
+            src={avatarUrl || undefined}
+            sx={{ width: 100, height: 100 }}
+          />
         )}
-        <Button variant="outlined" component="label">
-          Change Avatar
-          <input hidden accept="image/*" type="file" onChange={onFileChange} />
-        </Button>
+        <IconButton
+          onClick={handleAvatarClick}
+          sx={{
+            position: "absolute",
+            bottom: 0,
+            right: 0,
+            bgcolor: "background.paper",
+            boxShadow: 1,
+          }}
+          size="small"
+        >
+          <FaCamera size={16} />
+        </IconButton>
+        <input
+          type="file"
+          accept="image/*"
+          ref={fileInputRef}
+          onChange={onFileChange}
+          hidden
+        />
       </Box>
 
-      <TextField
-        label="Name"
-        value={displayName}
-        onChange={(e) => setDisplayName(e.target.value)}
-        fullWidth
-      />
+      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+        {editingName ? (
+          <>
+            <TextField
+              label="Name"
+              value={displayName}
+              onChange={(e) => setDisplayName(e.target.value)}
+              fullWidth
+            />
+            <IconButton onClick={() => handleSaveField("name")}>
+              <FaCheck />
+            </IconButton>
+          </>
+        ) : (
+          <>
+            <Typography variant="h6">
+              {displayName || "Unnamed User"}
+            </Typography>
+            <IconButton onClick={() => setEditingName(true)}>
+              <FaEdit />
+            </IconButton>
+          </>
+        )}
+      </Box>
 
-      <TextField
-        label="Bio"
-        value={bio}
-        onChange={(e) => setBio(e.target.value)}
-        fullWidth
-        multiline
-        minRows={3}
-      />
-
-      <Button
-        variant="contained"
-        onClick={handleSave}
-        disabled={loading}
-        sx={{ alignSelf: "flex-end", mt: 2 }}
-      >
-        Save Changes
-      </Button>
+      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+        {editingBio ? (
+          <>
+            <TextField
+              label="Bio"
+              value={bio}
+              onChange={(e) => setBio(e.target.value)}
+              fullWidth
+              multiline
+              minRows={2}
+            />
+            <IconButton onClick={() => handleSaveField("bio")}>
+              <FaCheck />
+            </IconButton>
+          </>
+        ) : (
+          <>
+            <Typography sx={{ whiteSpace: "pre-wrap" }}>
+              {bio || "No bio provided."}
+            </Typography>
+            <IconButton onClick={() => setEditingBio(true)}>
+              <FaEdit />
+            </IconButton>
+          </>
+        )}
+      </Box>
 
       <Snackbar
         open={!!message}

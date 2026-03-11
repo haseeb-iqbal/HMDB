@@ -10,12 +10,14 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 import type { User } from "@supabase/supabase-js";
+import Avatar from "@mui/material/Avatar";
 
 export default function Navbar() {
   const [supabaseUser, setSupabaseUser] = useState<User>();
 
   const supabase = createClient();
   const router = useRouter();
+  const [avatarUrl, setAvatarUrl] = useState("");
 
   useEffect(() => {
     supabase.auth.getUser().then((session) => {
@@ -29,6 +31,9 @@ export default function Navbar() {
 
       if (event === "SIGNED_IN") {
         setSupabaseUser(session?.user);
+        const metadata = (session?.user.user_metadata || {}) as any;
+        setAvatarUrl(metadata.avatar_url || "");
+
         // handle sign in even
       } else if (event === "SIGNED_OUT") {
         setSupabaseUser(undefined);
@@ -60,9 +65,16 @@ export default function Navbar() {
         <div className="ml-auto flex items-center space-x-4">
           {supabaseUser ? (
             <>
-              <span className="text-white">
-                Hi, {supabaseUser.user_metadata.display_name}
-              </span>
+              <Link
+                href="/account"
+                className="text-white  flex space-x-4 items-center"
+              >
+                <Avatar
+                  src={avatarUrl || undefined}
+                  sx={{ width: 20, height: 20 }}
+                />
+                {supabaseUser.user_metadata.display_name}
+              </Link>
               <button
                 onClick={handleSignOut}
                 className="text-sm text-red-500 hover:underline"
