@@ -13,8 +13,10 @@ import ReviewList from "@/components/ReviewList";
 
 const PLACEHOLDER = "/placeholder.jpg";
 
-export async function generateMetadata(props: { params: { id: string } }) {
-  const id = props.params.id;
+export async function generateMetadata(props: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await props.params;
   const res = await fetch(`https://api.themoviedb.org/3/movie/${id}`, {
     headers: { Authorization: `Bearer ${process.env.TMDB_API_ACCESS_TOKEN}` },
   });
@@ -38,8 +40,10 @@ export async function generateMetadata(props: { params: { id: string } }) {
   };
 }
 
-export default async function MoviePage(props: { params: { id: string } }) {
-  const id = props.params.id;
+export default async function MoviePage(props: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await props.params;
   const res = await fetch(
     `https://api.themoviedb.org/3/movie/${id}?append_to_response=videos,credits,recommendations`,
     {
@@ -108,11 +112,13 @@ export default async function MoviePage(props: { params: { id: string } }) {
         {/* Details */}
         <div className="flex-1">
           <h1 className="text-3xl font-bold mb-2">{title}</h1>
-          {tagline && <p className="italic text-gray-400 mb-2">"{tagline}"</p>}
+          {tagline && (
+            <p className="italic text-gray-400 mb-2">&ldquo;{tagline}&rdquo;</p>
+          )}
           <p className="text-gray-300 text-sm mb-4">{overview}</p>
 
           <div className="flex flex-wrap gap-2 mb-3">
-            {genres?.map((g: any) => (
+            {genres?.map((g: { id: number; name: string }) => (
               <span
                 key={g.id}
                 className="bg-gray-700 text-sm px-3 py-1 rounded-full"
@@ -157,7 +163,8 @@ export default async function MoviePage(props: { params: { id: string } }) {
           <TrailerEmbed
             videoKey={
               videos.results.find(
-                (v: any) => v.site === "YouTube" && v.type === "Trailer"
+                (v: { site: string; type: string; key: string }) =>
+                  v.site === "YouTube" && v.type === "Trailer"
               )?.key
             }
           />

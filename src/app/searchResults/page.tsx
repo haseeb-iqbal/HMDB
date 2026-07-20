@@ -10,10 +10,18 @@ type Genre = {
   name: string;
 };
 
+type Movie = {
+  id: number;
+  title: string;
+  poster_path: string | null;
+  release_date?: string;
+  vote_average?: number;
+};
+
 export default function SearchResultsPage() {
   const params = useSearchParams();
-  const query = params.get("query") || "";
-  const [movies, setMovies] = useState<any[]>([]);
+  const query = params?.get("query") || "";
+  const [movies, setMovies] = useState<Movie[]>([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [genres, setGenres] = useState<Genre[]>([]);
@@ -98,7 +106,8 @@ export default function SearchResultsPage() {
   return (
     <div className="px-4 py-6 text-white">
       <h1 className="text-xl font-bold mb-4">
-        Results for <span className="text-yellow-400">"{query}"</span>
+        Results for{" "}
+        <span className="text-yellow-400">&ldquo;{query}&rdquo;</span>
       </h1>
 
       {/* Filters */}

@@ -11,7 +11,6 @@ export default function ResetPasswordPage() {
   const searchParams = useSearchParams();
 
   // “access_token” comes from Supabase’s recovery link
-  const [token, setToken] = useState<string | null>(null);
   const [sessionError, setSessionError] = useState<string | null>(null);
   const [sessionLoading, setSessionLoading] = useState(true);
 
@@ -39,14 +38,13 @@ export default function ResetPasswordPage() {
       setSessionLoading(false);
       return;
     }
-    setToken(t);
 
-    // This will exchange the access_token for a valid session and store it.
+    // Verify the recovery token_hash to establish a session for this client.
     supabase.auth
-      .getSessionFromUrl({ storeSession: true })
-      .then(({ data, error }) => {
+      .verifyOtp({ type: "recovery", token_hash: t })
+      .then(({ error }) => {
         if (error) {
-          console.error("getSessionFromUrl error:", error.message);
+          console.error("verifyOtp error:", error.message);
           setSessionError("Invalid or expired reset link.");
         }
         // If successful, Supabase client now has a session; we can show the form.
@@ -95,7 +93,7 @@ export default function ResetPasswordPage() {
 
     // The Supabase client already has a session (from getSessionFromUrl).
     // Now call updateUser to set the new password.
-    const { data, error } = await supabase.auth.updateUser({
+    const { error } = await supabase.auth.updateUser({
       password,
     });
 

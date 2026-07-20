@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 
 type Props = { movieId: number };
 
+type WatchedMovie = { id: number; rating: number | null };
+
 const STORAGE_KEY = "watchedMovies";
 
 export default function WatchedToggle({ movieId }: Props) {
@@ -14,7 +16,7 @@ export default function WatchedToggle({ movieId }: Props) {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
       const parsed = JSON.parse(stored);
-      const match = parsed.find((m: any) => m.id === movieId);
+      const match = parsed.find((m: WatchedMovie) => m.id === movieId);
       if (match) {
         setWatched(true);
         setRating(match.rating || null);
@@ -22,7 +24,7 @@ export default function WatchedToggle({ movieId }: Props) {
     }
   }, [movieId]);
 
-  const updateStorage = (updated: any[]) => {
+  const updateStorage = (updated: WatchedMovie[]) => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
   };
 
@@ -30,7 +32,7 @@ export default function WatchedToggle({ movieId }: Props) {
     const existing = localStorage.getItem(STORAGE_KEY);
     const list = existing ? JSON.parse(existing) : [];
     const updated = watched
-      ? list.filter((m: any) => m.id !== movieId)
+      ? list.filter((m: WatchedMovie) => m.id !== movieId)
       : [...list, { id: movieId, rating }];
     updateStorage(updated);
     setWatched(!watched);
@@ -40,7 +42,7 @@ export default function WatchedToggle({ movieId }: Props) {
     setRating(value);
     const existing = localStorage.getItem(STORAGE_KEY);
     const list = existing ? JSON.parse(existing) : [];
-    const updated = list.map((m: any) =>
+    const updated = list.map((m: WatchedMovie) =>
       m.id === movieId ? { ...m, rating: value } : m
     );
     updateStorage(updated);

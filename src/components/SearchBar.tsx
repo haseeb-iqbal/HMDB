@@ -4,7 +4,6 @@ import {
   useState,
   useEffect,
   useRef,
-  useCallback,
   ChangeEvent,
   KeyboardEvent,
 } from "react";
@@ -23,7 +22,7 @@ type Movie = {
   id: number;
   title: string;
   poster_path: string | null;
-  release_date: string;
+  release_date?: string;
 };
 
 const PLACEHOLDER_IMAGE = "/placeholder.jpg";
@@ -33,7 +32,7 @@ export default function SearchBar() {
   const [debounced, setDebounced] = useState("");
   const [results, setResults] = useState<Movie[]>([]);
   const [recent, setRecent] = useState<Movie[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [, setLoading] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const router = useRouter();

@@ -1,7 +1,6 @@
 // src/components/Hero.tsx
 "use client";
 import { useState } from "react";
-import Image from "next/image";
 import TrailerEmbed from "./TrailerEmbed"; // your existing embed
 import { Movie } from "@/types"; // define a lightweight type
 

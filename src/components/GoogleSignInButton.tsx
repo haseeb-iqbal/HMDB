@@ -1,7 +1,8 @@
 "use client";
+import { useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
 
-async function handleSignInWithGoogle(response) {
+async function handleSignInWithGoogle(response: { credential: string }) {
   console.log("Signing in with Google:", response);
 
   const nonce = btoa(
@@ -21,6 +22,15 @@ async function handleSignInWithGoogle(response) {
 }
 
 export default function GoogleAuthButton() {
+  useEffect(() => {
+    // Google Identity Services invokes the callback by name off `window`.
+    (
+      window as unknown as {
+        handleSignInWithGoogle: typeof handleSignInWithGoogle;
+      }
+    ).handleSignInWithGoogle = handleSignInWithGoogle;
+  }, []);
+
   return (
     <div>
       <div

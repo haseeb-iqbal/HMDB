@@ -31,7 +31,7 @@ export default function ReviewForm({ movieId }: { movieId: number }) {
       .eq("user_id", supabaseUser.id)
       .eq("movie_id", movieId)
       .single()
-      .then(({ data, error }) => {
+      .then(({ data }) => {
         if (data) {
           setRating(data.rating);
           setTitle(data.title || "");
@@ -57,7 +57,7 @@ export default function ReviewForm({ movieId }: { movieId: number }) {
     // Upsert to honor the unique(user_id, movie_id) constraint
     const { error } = await supabase
       .from("reviews")
-      .upsert(payload, { onConflict: ["user_id", "movie_id"] });
+      .upsert(payload, { onConflict: "user_id,movie_id" });
 
     if (error) {
       console.error("Review save error:", error);

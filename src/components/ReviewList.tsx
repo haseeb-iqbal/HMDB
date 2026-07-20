@@ -25,7 +25,7 @@ export default function ReviewList({ movieId }: { movieId: number }) {
       .select("*", { count: "exact" })
       .eq("movie_id", movieId)
       .order("created_at", { ascending: false })
-      .then(({ data, count }) => {
+      .then(({ data }) => {
         if (data) {
           setReviews(data);
           // compute average

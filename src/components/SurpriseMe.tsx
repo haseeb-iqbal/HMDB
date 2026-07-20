@@ -2,7 +2,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 
-export default function SurpriseMe({ pool }: { pool: any[] }) {
+export default function SurpriseMe({ pool }: { pool: { id: number }[] }) {
   const router = useRouter();
   const pick = () => {
     const rand = pool[Math.floor(Math.random() * pool.length)];

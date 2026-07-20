@@ -236,7 +236,9 @@ export default function ChangePasswordForm() {
           >
             {globalError}
           </Alert>
-        ) : null}
+        ) : (
+          <span />
+        )}
       </Snackbar>
     </Container>
   );

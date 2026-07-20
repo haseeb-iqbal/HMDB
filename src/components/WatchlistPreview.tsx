@@ -2,10 +2,10 @@
 "use client";
 import { useEffect, useState } from "react";
 import SectionCarousel from "./SectionCarousel";
-import { getWatchlist } from "@/lib/watchlistUtils";
+import { getWatchlist, type StoredMovie } from "@/lib/watchlistUtils";
 
 export default function WatchlistPreview() {
-  const [list, setList] = useState<any[]>([]);
+  const [list, setList] = useState<StoredMovie[]>([]);
   useEffect(() => {
     setList(getWatchlist());
   }, []);

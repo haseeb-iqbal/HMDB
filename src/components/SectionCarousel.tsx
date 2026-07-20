@@ -14,7 +14,7 @@ export default function SectionCarousel({
   title: string;
   movies: Movie[];
 }) {
-  const [sliderRef, slider] = useKeenSlider<HTMLDivElement>({
+  const [sliderRef] = useKeenSlider<HTMLDivElement>({
     loop: false,
     slides: { perView: 5, spacing: 12 },
     breakpoints: {

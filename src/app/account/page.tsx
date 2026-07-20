@@ -40,7 +40,10 @@ export default function UserAccountPage() {
 
   useEffect(() => {
     if (supabaseUser) {
-      const meta = (supabaseUser.user_metadata || {}) as any;
+      const meta = (supabaseUser.user_metadata || {}) as Record<
+        string,
+        string
+      >;
       setDisplayName(meta.display_name || "");
       setBio(meta.bio || "");
       setAvatarUrl(meta.avatar_url || "");
@@ -50,7 +53,7 @@ export default function UserAccountPage() {
   const handleSaveField = async (field: "name" | "bio") => {
     if (!supabaseUser) return;
     setLoading(true);
-    const updates: any = {};
+    const updates: Record<string, string> = {};
     if (field === "name") updates.display_name = displayName;
     if (field === "bio") updates.bio = bio;
     const { error } = await supabase.auth.updateUser({ data: updates });
@@ -201,7 +204,7 @@ export default function UserAccountPage() {
         autoHideDuration={6000}
         onClose={() => setMessage(null)}
       >
-        {message && (
+        {message ? (
           <Alert
             onClose={() => setMessage(null)}
             severity={message.type}
@@ -209,7 +212,7 @@ export default function UserAccountPage() {
           >
             {message.text}
           </Alert>
-        )}
+        ) : undefined}
       </Snackbar>
     </Box>
   );
